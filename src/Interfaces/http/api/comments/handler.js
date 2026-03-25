@@ -47,7 +47,7 @@ class CommentsHandler {
 
   async putCommentLikeHandler(req, res, next) {
     try {
-      const { id: userId } = req.authh;
+      const { id: userId } = req.auth;
       const { threadId, commentId } = req.params;
 
       const toggleCommentLikeUseCase = this._container.getInstance(ToggleCommentLikeUseCase.name);
