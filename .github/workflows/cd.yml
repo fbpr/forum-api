@@ -1,0 +1,18 @@
+name: CD
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v6
+      - name: Deploy App
+        run: |
+          npm ci --omit=dev --no-audit --no-fund
+          npm run migrate up
+          pm2 reload "forum-api" --update-env || pm2 start npm --name "forum-api" -- run "start"
+          pm2 save
