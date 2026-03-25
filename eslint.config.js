@@ -11,5 +11,5 @@ export default defineConfig([
     },
   },
   daStyle,
-  { files: ['**/*.{js,mjs,cjs}'], plugins: { js }, extends: ['js/recommended'], languageOptions: { globals: { ...vitest.environments.env.globals, ...globals.node } } },
+  { files: ['**/*.{js,mjs,cjs}'], plugins: { js }, extends: ['js/recommended'], languageOptions: { globals: { ...vitest.environments.env.globals, ...globals.node } }, rules: { 'no-unused-vars': ['error', { 'argsIgnorePattern': '^_|^next$', 'varsIgnorePattern': '^_', vars: 'all', args: 'after-used' }] } },
 ]);

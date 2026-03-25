@@ -5,6 +5,7 @@ const createCommentsRouter = (handler, authMiddleware) => {
 
   router.post('/', authMiddleware.authenticateToken, handler.postCommentHandler);
   router.delete('/:commentId', authMiddleware.authenticateToken, handler.deleteCommentHandler);
+  router.put('/:commentId/likes', authMiddleware.authenticateToken, handler.putCommentLikeHandler);
 
   return router;
 };

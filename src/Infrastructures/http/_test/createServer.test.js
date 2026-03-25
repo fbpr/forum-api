@@ -897,6 +897,87 @@ describe('HTTP server', () => {
     });
   });
 
+  describe('when PUT /threads/{threadId}/comments/{commentId}/likes', () => {
+    let accessToken;
+    let threadId;
+    let commentId;
+
+    beforeEach(async () => {
+      const app = await createServer(container);
+
+      const hashedPassword = await bcrypt.hash('secret', 10);
+      await UsersTableTestHelper.addUser({ username: 'dicoding', password: hashedPassword });
+
+      const loginResponse = await request(app).post('/authentications').send({
+        username: 'dicoding',
+        password: 'secret',
+      });
+
+      accessToken = loginResponse.body.data.accessToken;
+
+      await ThreadsTableTestHelper.addThread({ id: 'thread-123', owner: 'user-123' });
+      threadId = 'thread-123';
+
+      await CommentsTableTestHelper.addComment({ id: 'comment-123', threadId: 'thread-123', owner: 'user-123' });
+      commentId = 'comment-123';
+    });
+
+    it('should response 200 and like the comment if not liked', async () => {
+      const app = await createServer(container);
+
+      const response = await request(app).put(`/threads/${threadId}/comments/${commentId}/likes`)
+        .set('Authorization', `Bearer ${accessToken}`);
+
+      expect(response.status).toEqual(200);
+      expect(response.body.status).toEqual('success');
+    });
+
+    it('should response 200 and unlike the comment if already liked', async () => {
+      const app = await createServer(container);
+
+      await request(app).put(`/threads/${threadId}/comments/${commentId}/likes`)
+        .set('Authorization', `Bearer ${accessToken}`);
+
+      const response = await request(app).put(`/threads/${threadId}/comments/${commentId}/likes`)
+        .set('Authorization', `Bearer ${accessToken}`);
+
+      expect(response.status).toEqual(200);
+      expect(response.body.status).toEqual('success');
+    });
+
+    it('should response 401 if request not contain access token', async () => {
+      const app = await createServer(container);
+
+      const response = await request(app).put(`/threads/${threadId}/comments/${commentId}/likes`);
+
+      expect(response.status).toEqual(401);
+      expect(response.body.status).toEqual('fail');
+      expect(response.body.message).toEqual('Missing authentication');
+    });
+
+    it('should response 401 if access token invalid', async () => {
+      const app = await createServer(container);
+
+      const response = await request(app).put(`/threads/${threadId}/comments/${commentId}/likes`)
+        .set('Authorization', 'Bearer invalid_access_token');
+
+      expect(response.status).toEqual(401);
+      expect(response.body.status).toEqual('fail');
+      expect(response.body.message).toEqual('access token tidak valid');
+    });
+
+    it('should response 404 if comment not found', async () => {
+      const app = await createServer(container);
+
+      const response = await request(app).put(`/threads/${threadId}/comments/invalid_comment_id/likes`)
+        .set('Authorization', `Bearer ${accessToken}`);
+
+      expect(response.status).toEqual(404);
+      expect(response.body.status).toEqual('fail');
+      expect(response.body.message).toEqual('komentar tidak ditemukan');
+    });
+  });
+
   it('should handle server error correctly', async () => {
     // Arrange
     const requestPayload = {

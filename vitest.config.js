@@ -6,7 +6,6 @@ export default defineConfig({
       provider: 'istanbul',
     },
     globals: true,
-    setupFiles: ['dotenv/config'],
     fileParallelism: false,
   },
 });
