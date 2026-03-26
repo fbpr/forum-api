@@ -6,13 +6,18 @@ on:
 
 jobs:
   deploy:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
+
     steps:
-      - name: Check out repository code
-        uses: actions/checkout@v6
-      - name: Deploy App
-        run: |
-          npm ci --omit=dev --no-audit --no-fund
-          npm run migrate up
-          pm2 reload "forum-api" --update-env || pm2 start npm --name "forum-api" -- run "start"
-          pm2 save
+      - name: SSH and Deploy App
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            cd ~/forum-api
+            git pull origin main
+            npm ci --omit=dev --no-audit --no-fund
+            npm run migrate up
+            pm2 restart forum-api
