@@ -966,6 +966,17 @@ describe('HTTP server', () => {
       expect(response.body.message).toEqual('access token tidak valid');
     });
 
+    it('should response 404 if thread not found', async () => {
+      const app = await createServer(container);
+
+      const response = await request(app).put(`/threads/invalid_thread_id/comments/${commentId}/likes`)
+        .set('Authorization', `Bearer ${accessToken}`);
+
+      expect(response.status).toEqual(404);
+      expect(response.body.status).toEqual('fail');
+      expect(response.body.message).toEqual('thread tidak ditemuka');
+    });
+
     it('should response 404 if comment not found', async () => {
       const app = await createServer(container);
 
