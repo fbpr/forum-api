@@ -974,7 +974,7 @@ describe('HTTP server', () => {
 
       expect(response.status).toEqual(404);
       expect(response.body.status).toEqual('fail');
-      expect(response.body.message).toEqual('thread tidak ditemuka');
+      expect(response.body.message).toEqual('thread tidak ditemukan');
     });
 
     it('should response 404 if comment not found', async () => {
